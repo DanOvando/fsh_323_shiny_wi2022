@@ -11,9 +11,11 @@ library(shiny)
 
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
-    titlePanel("Fishing Simulator"),
+    titlePanel("Fished Population Simulator"),
     sidebarLayout(
       sidebarPanel(
+        "Adjust the sliders to change the level of fishing and the starting popultion",
+        helpText("Set the number of fish caught every year"),
         sliderInput(
           "catch",
           "Catch Level:",
@@ -21,6 +23,7 @@ shinyUI(fluidPage(
           max = 20,
           value = 10
         ),
+        helpText("Set the number of fish the population starts with"),
         sliderInput(
           "n.start",
           "Starting Population Size:",
@@ -28,6 +31,7 @@ shinyUI(fluidPage(
           max = 100,
           value = 50
         ),
+        helpText("Set the production type. We'll what this means in class!"),
         radioButtons(
           "prodtype",
           "Production Type",
@@ -37,7 +41,14 @@ shinyUI(fluidPage(
           )
         )
       ),
-      mainPanel(plotOutput(outputId = "simplot"))
+      mainPanel(h4("Final catch, production, and population size"),
+                plotOutput(outputId = "simplot"),
+                br(),
+                br(),
+                br(),
+                br(),
+                h4("Trajcetory of catch, production, and population size"),
+                plotOutput(outputId = "plot2"))
       )
     )
   )

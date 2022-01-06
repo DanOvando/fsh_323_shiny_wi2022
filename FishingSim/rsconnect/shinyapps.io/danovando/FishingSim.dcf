@@ -1,0 +1,13 @@
+name: FishingSim
+title: FishingSim
+username:
+account: danovando
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5385753
+bundleId: 5439089
+url: https://danovando.shinyapps.io/FishingSim/
+when: 1641441529.0047
+lastSyncTime: 1641441529.00471
+asMultiple: FALSE
+asStatic: FALSE
