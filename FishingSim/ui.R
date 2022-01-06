@@ -31,7 +31,7 @@ shinyUI(fluidPage(
           max = 100,
           value = 50
         ),
-        helpText("Set the production type. We'll what this means in class!"),
+        helpText("Set the production type. We'll explain what this means in class!"),
         radioButtons(
           "prodtype",
           "Production Type",
