@@ -22,7 +22,7 @@ shinyServer(function(input, output) {
     par(xpd = F, las = 1)
     cols <- rev(plasma(20))
     line.col <- plasma(3)[1:3]
-    text.mult <- 1.5
+    text.mult <- 1.25
     if (prodtype == "const") {
       r <- r.base
       p.list <- r * n.list

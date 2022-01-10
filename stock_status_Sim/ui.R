@@ -21,7 +21,7 @@ shinyUI(fluidPage(
        sliderInput("fmax",
                    "Maximum fishing intensity",
                    min = 0,
-                   max = 0.4,
+                   max = 0.8,
                    value = 0.3,
                    ticks = FALSE,
                    ),
@@ -29,18 +29,18 @@ shinyUI(fluidPage(
          "fishing.pattern",
          "Fishing Pattern",
          c(
-           "Pattern 1"  =  1,
-           "Pattern 2" = 2,
-           "Pattern 3" = 3,
-           "Pattern 4"= 4
+           "Pattern 1: Constant F"  =  1,
+           "Pattern 2: Ramp up F" = 2,
+           "Pattern 3: Ramp down F" = 3,
+           "Pattern 4: Up then Down"= 4
          )
          )
        ),
     # Show a plot of the generated distribution
     mainPanel(
       tabsetPanel(
-        tabPanel("Stock Status Plot", plotOutput("simplot")),
-        tabPanel("Population and Catch", plotOutput("catchplot"))
+        tabPanel("Stock Status Plot", br(), br(),plotOutput("simplot")),
+        tabPanel("Population and Catch",br(),br(), plotOutput("catchplot"))
       )
     )
   )

@@ -18,13 +18,13 @@ shinyServer(function(input, output) {
     fmsy <- r/2
     msy <- 4* r/K
     bmsy <- K/2
-    cex.mult = 1.5
-    f.adj = fmsy / 0.3
+    cex.mult = 1.25
+    f.adj = 1 #fmsy / 0.3
   
     
     if (fishing.pattern ==1) fs <- rep(fmax * f.adj, 30) 
     if (fishing.pattern ==2) fs <- c(seq(0, fmax * f.adj, length.out = 10), rep(fmax * f.adj, 20))
-    if (fishing.pattern ==3) fs <- c(seq(0, fmax, length.out = 10), rep(fmax , 20))
+    if (fishing.pattern ==3) fs <- c(seq(fmax, fmax / 2, length.out = 10), rep(fmax / 2 , 20))
     if (fishing.pattern ==4) fs <- c(seq(0, fmax , length.out = 10), rev(seq(fmax * f.adj/2, fmax, length.out = 10)), rep(fmax * f.adj /  2, 10))
     # make fishing pattern plot
     layout(matrix(c(1,2,2,3,3), nrow = 5, ncol = 1))
@@ -33,15 +33,15 @@ shinyServer(function(input, output) {
          type = "l",
          lwd = 3,
          xlab = "Year",
-         ylab = "Fishing Intensity",
-         ylim = c(0, 0.4), 
+         ylab = "Fishing Mortality",
+         ylim = c(0, 1), 
          cex.lab = cex.mult,
          cex.axis = cex.mult,
          axes = F
     )
     box()
     axis(side = 1, at = c(0, 50, 100), cex.axis = cex.mult)
-    axis(side = 2, at = c(0, 0.4), labels = c(0, 0.4), cex.axis = cex.mult)
+    axis(side = 2, at = seq(0,1, by = 0.25), labels = seq(0,1, by = 0.25), cex.axis = cex.mult)
     
     catches <- output <- rep(NA, 30)
     
@@ -91,11 +91,11 @@ shinyServer(function(input, output) {
     
     plot(c(), c(),
          xlim <- c(0,2),
-         ylim <- c(0,2.5),
+         ylim <- c(0,4),
          type = "l",
          lwd = 2,
-         xlab = "B : BMSY",
-         ylab = "F : FMSY",
+         xlab = "B/BMSY",
+         ylab =  "F/FMSY",
          cex.lab = cex.mult,
          cex.axis = cex.mult
     )
@@ -126,7 +126,7 @@ shinyServer(function(input, output) {
     
     if (fishing.pattern ==1) fs <- rep(fmax * f.adj, 30) 
     if (fishing.pattern ==2) fs <- c(seq(0, fmax * f.adj, length.out = 10), rep(fmax * f.adj, 20))
-    if (fishing.pattern ==3) fs <- c(seq(0, fmax, length.out = 10), rep(fmax , 20))
+    if (fishing.pattern ==3) fs <- c(seq(fmax, fmax/2 , length.out = 10), rep( fmax/2 , 20))
     if (fishing.pattern ==4) fs <- c(seq(0, fmax , length.out = 10), rev(seq(fmax * f.adj/2, fmax, length.out = 10)), rep(fmax * f.adj /  2, 10))
     
     # make fishing pattern plot
@@ -137,15 +137,15 @@ shinyServer(function(input, output) {
          type = "l",
          lwd = 3,
          xlab = "Year",
-         ylab = "Fishing Intensity",
-         ylim = c(0, 0.4), 
+         ylab = "Fishing Mortality Rate",
+         ylim = c(0, 1), 
          cex.lab = cex.mult,
          cex.axis = cex.mult,
          axes = F
     )
     box()
     axis(side = 1, at = c(0, 50, 100), cex.axis = cex.mult)
-    axis(side = 2, at = c(0, 0.4), labels = c(0, 0.4), cex.axis = cex.mult)
+    axis(side = 2, at = seq(0,1, by = 0.25), labels = seq(0,1, by = 0.25), cex.axis = cex.mult)
     
     catches <- output <- rep(NA, 30)
     
@@ -204,10 +204,10 @@ shinyServer(function(input, output) {
 
   }
   output$simplot <- renderPlot({plot.fun(input$fishing.pattern, input$fmax)},
-                               width = 400,
+                               width = 500,
                                height = 600)
   output$catchplot <- renderPlot({plot.catches(input$fishing.pattern, input$fmax)},
-                               width = 400,
+                               width = 500,
                                height = 600)
   
 })
