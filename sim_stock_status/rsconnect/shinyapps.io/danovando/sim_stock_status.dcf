@@ -1,0 +1,13 @@
+name: sim_stock_status
+title: sim_stock_status
+username:
+account: danovando
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5420646
+bundleId: 5462180
+url: https://danovando.shinyapps.io/sim_stock_status/
+when: 1642020117.50385
+lastSyncTime: 1642020117.50387
+asMultiple: FALSE
+asStatic: FALSE

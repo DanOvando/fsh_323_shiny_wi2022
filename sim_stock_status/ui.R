@@ -18,8 +18,16 @@ shinyUI(fluidPage(
   # Sidebar 
   sidebarLayout(
     sidebarPanel(
+      sliderInput("init_dep",
+                  "% of Carrying Capacity Pop. Starts At",
+                  min = 0,
+                  max = 100,
+                  value = 100,
+                  post = "%",
+                  ticks = TRUE,
+      ),
        sliderInput("fmax",
-                   "Maximum fishing intensity",
+                   "Maximum fishing mortality",
                    min = 0,
                    max = 0.8,
                    value = 0.3,

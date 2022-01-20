@@ -1,0 +1,13 @@
+name: sim_simple_assessment
+title: sim_simple_assessment
+username:
+account: danovando
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5466258
+bundleId: 5485699
+url: https://danovando.shinyapps.io/sim_simple_assessment/
+when: 1642610439.24694
+lastSyncTime: 1642610439.24695
+asMultiple: FALSE
+asStatic: FALSE

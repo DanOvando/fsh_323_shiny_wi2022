@@ -19,8 +19,9 @@ shinyServer(function(input, output) {
   simpop <- function(n.start, catch, prodtype, ptype = 1) {
     r.base <- 0.2
     n.list <- 0:100
+    years <- 500
     par(xpd = F, las = 1)
-    cols <- rev(plasma(20))
+    cols <- rev(plasma(years))
     line.col <- plasma(3)[1:3]
     text.mult <- 1.25
     if (prodtype == "const") {
@@ -34,8 +35,8 @@ shinyServer(function(input, output) {
       p.list <- r * n.list * (1 - n.list / K)
     }
     
-    output <- rep(NA, times = 200)
-    production <- rep(NA, times = 200)
+    output <- rep(NA, times = years)
+    production <- rep(NA, times = years)
     
     output[1] = n.start
     n.loops <- length(output)
@@ -96,7 +97,7 @@ shinyServer(function(input, output) {
       cex = text.mult
     )
    
-    abline(v = output[length(output)], lty = "dashed", col = cols[20])
+    abline(v = output[length(output)], lty = "dashed", col = cols[years])
     par(xpd = T)
     legend(
       x = 50,
@@ -105,7 +106,7 @@ shinyServer(function(input, output) {
       xjust = 0.5,
       legend = c("Initial Population size", "Final Population Size"),
       pch = 21,
-      pt.bg = cols[c(1, 20)],
+      pt.bg = cols[c(1,years)],
       bty = "n",
       cex = text.mult
     )
@@ -131,14 +132,22 @@ shinyServer(function(input, output) {
         filter(Time < 100) %>% 
         mutate(variable = forcats::fct_relevel(variable,"Production","Catch"))
       
+      ylabs <-
+        c(paste0(seq(0, 75, by = 25), ""),
+          expression("" >= "100"))
+      
+      
       out %>% 
         ggplot(aes(Time, Numbers, color = variable)) + 
         geom_line(size = 2) + 
-        scale_y_continuous(limits = c(0,100), expand = c(0,0)) +
+        scale_y_continuous(expand = c(0,0), breaks = seq(0,100, by = 25), labels = ylabs) +
         scale_x_continuous(expand = c(0,0)) +
         scale_color_manual(values = line.col,name = "") +
         theme_classic(base_size = 16) + 
-        theme(legend.position = "top")
+        theme(legend.position = "top") + 
+        coord_cartesian(ylim = c(0,110),
+                        xlim = c(1,20)) 
+        
       
       
     }

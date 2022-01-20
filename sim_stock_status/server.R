@@ -13,12 +13,13 @@ library(shiny)
 shinyServer(function(input, output) {
   # make main function
   plot.fun <- function(fishing.pattern, fmax) {
+    
     K <- 100
     r <- 0.4
     fmsy <- r/2
     msy <- 4* r/K
     bmsy <- K/2
-    cex.mult = 1.25
+    cex.mult = 1.75
     f.adj = 1 #fmsy / 0.3
   
     
@@ -33,19 +34,19 @@ shinyServer(function(input, output) {
          type = "l",
          lwd = 3,
          xlab = "Year",
-         ylab = "Fishing Mortality",
-         ylim = c(0, 1), 
+         ylab = "Fishing Mortality Rate",
+         ylim = c(0, 0.8), 
          cex.lab = cex.mult,
          cex.axis = cex.mult,
-         axes = F
+         axes = T
     )
-    box()
-    axis(side = 1, at = c(0, 50, 100), cex.axis = cex.mult)
-    axis(side = 2, at = seq(0,1, by = 0.25), labels = seq(0,1, by = 0.25), cex.axis = cex.mult)
+    # box()
+    # axis(side = 1, at = c(0, 50, 100), cex.axis = cex.mult)
+    # axis(side = 2, at = seq(0,1, by = 0.25), labels = seq(0,1, by = 0.25), cex.axis = cex.mult)
     
     catches <- output <- rep(NA, 30)
     
-    output[1] <- K
+    output[1] <- K * input$init_dep / 100
     catches[1] <- fs[1] * output[1]
     
     n.loops <- length(output)
@@ -120,8 +121,8 @@ shinyServer(function(input, output) {
     fmsy <- r/2
     msy <- r * K / 4
     bmsy <- K/2
-    cex.mult = 1.5
-    f.adj = fmsy / 0.3
+    cex.mult = 1.75
+    f.adj = 1
     
     
     if (fishing.pattern ==1) fs <- rep(fmax * f.adj, 30) 
@@ -138,18 +139,18 @@ shinyServer(function(input, output) {
          lwd = 3,
          xlab = "Year",
          ylab = "Fishing Mortality Rate",
-         ylim = c(0, 1), 
+         ylim = c(0, 0.8), 
          cex.lab = cex.mult,
          cex.axis = cex.mult,
-         axes = F
+         axes = T
     )
-    box()
-    axis(side = 1, at = c(0, 50, 100), cex.axis = cex.mult)
-    axis(side = 2, at = seq(0,1, by = 0.25), labels = seq(0,1, by = 0.25), cex.axis = cex.mult)
+    # box()
+    # axis(side = 1, at = c(0, 50, 100), cex.axis = cex.mult)
+    # axis(side = 2, at = seq(0,1, by = 0.25), labels = seq(0,1, by = 0.25), cex.axis = cex.mult)
     
     catches <- output <- rep(NA, 30)
     
-    output[1] <- K
+    output[1] <- K * input$init_dep / 100
     catches[1] <- fs[1] * output[1]
     
     n.loops <- length(output)
@@ -204,10 +205,10 @@ shinyServer(function(input, output) {
 
   }
   output$simplot <- renderPlot({plot.fun(input$fishing.pattern, input$fmax)},
-                               width = 500,
-                               height = 600)
+                               width = 600,
+                               height = 800)
   output$catchplot <- renderPlot({plot.catches(input$fishing.pattern, input$fmax)},
-                               width = 500,
-                               height = 600)
+                               width = 600,
+                               height = 800)
   
 })
