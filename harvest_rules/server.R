@@ -10,7 +10,12 @@
 library(shiny)
 
 # Define server logic required to draw a histogram
-shinyServer(function(input, output) {
+shinyServer(function(input, output,session) {
+  
+  observeEvent(input$hr, {
+    updateTabsetPanel(inputId = "params", selected = input$hr)
+  }) 
+  
   # Help Text
   observeEvent(input$help1, {
     # Show a modal when the button is pressed
@@ -26,7 +31,7 @@ shinyServer(function(input, output) {
     # Show a modal when the button is pressed
     shinyalert(title=NULL, 
                text=HTML("<b>
-                         Set the annual catch when the Constant Catch Harvest strategy is selected."), 
+                         This sets the annual catch amount when the Constant Catch Harvest strategy is selected."), 
                closeOnClickOutside = TRUE, 
                html=TRUE, 
                animation=FALSE)
@@ -35,7 +40,7 @@ shinyServer(function(input, output) {
     # Show a modal when the button is pressed
     shinyalert(title=NULL, 
                text=HTML("<b>
-                         Set the exploitation rate when the Constant Exploitation harvest strategy is selected."), 
+                         This sets the exploitation rate when the Constant Exploitation harvest strategy is selected."), 
                closeOnClickOutside = TRUE, 
                html=TRUE, 
                animation=FALSE)
@@ -44,7 +49,7 @@ shinyServer(function(input, output) {
     # Show a modal when the button is pressed
     shinyalert(title=NULL, 
                text=HTML("<b>
-                         Set the escapement rate when the Constant Escapement harvest strategy is selected."), 
+                         This sets the escapement rate when the Constant Escapement harvest strategy is selected."), 
                closeOnClickOutside = TRUE, 
                html=TRUE, 
                animation=FALSE)
@@ -69,7 +74,7 @@ shinyServer(function(input, output) {
     if (sigma > 0) vt <- rnorm(51, mean = - sigma^2/2, sd = sigma)
     if (sigma ==0) vt <- rep(0, length(years))
     
-    if(hr == "const") {
+    if(hr == "catch") {
       catches[1] <- min(bstart, catch)
       for (i in 2:length(years)) {
         output[i] <- max(0,output[i-1] + prod.func(output[i-1], r,K)*exp(vt[i-1]) - catches[i-1])
@@ -118,7 +123,7 @@ shinyServer(function(input, output) {
     blist <- seq(0, K, length.out = 100)
     prod <- prod.func(blist, r, K)
     harvest <- rep(NA, 100)
-    if (hr == "const") for (i in 1:100) harvest[i] <- min(catch, blist[i])
+    if (hr == "catch") for (i in 1:100) harvest[i] <- min(catch, blist[i])
     if (hr == "f") harvest = blist * f
     if (hr == "esc") for (i in 1:100) harvest[i] <- max(0, blist[i] - esc)
     plot(blist / 1000, prod / 1000,
@@ -184,7 +189,7 @@ shinyServer(function(input, output) {
       if (sigma > 0) vt <- rnorm(n = length(years), mean = 0 - sigma^2/2, sigma)
       if (sigma ==0) vt <- rep(0, length(years))
       
-      if(hr == "const") {
+      if(hr == "catch") {
         catches[1] <- min(bstart, catch)
         for (i in 2:length(years)) {
           output[i] <- max(0,output[i-1] + prod.func(output[i-1], r,K)*exp(vt[i-1]) - catches[i-1])
@@ -218,7 +223,7 @@ shinyServer(function(input, output) {
     
     # Make Table
     sim.out <- as.data.frame(matrix(NA, nrow = 4, ncol = 2))
-    names(sim.out) = c("Metric", "Average over 2,000 simulations")
+    names(sim.out) = c("Metric", "Summaries Across 2,000 simulations")
     sim.out[,1] <- c("# Years overfished", "Average Biomass", "Average Catch", "Average Catch Variability")
     sim.out[,2] <- c(as.character(round(mean(years.overfished),1)),
                            round(mean(mean.biomass),-1),

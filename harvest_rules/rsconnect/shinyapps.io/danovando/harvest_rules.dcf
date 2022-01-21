@@ -1,0 +1,13 @@
+name: harvest_rules
+title: harvest_rules
+username:
+account: danovando
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5480859
+bundleId: 5491408
+url: https://danovando.shinyapps.io/harvest_rules/
+when: 1642735735.4432
+lastSyncTime: 1642735735.44321
+asMultiple: FALSE
+asStatic: FALSE
