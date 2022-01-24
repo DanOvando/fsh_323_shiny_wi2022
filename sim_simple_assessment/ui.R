@@ -23,7 +23,7 @@ shinyUI(fluidPage(
             sliderInput("r",
                         "Intrinsic Growth Rate (r)",
                         min = 0,
-                        max = 1,
+                        max = 20,
                         value = 0.1, 
                         step = .01),
             sliderInput("k",

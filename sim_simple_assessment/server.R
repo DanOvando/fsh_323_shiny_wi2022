@@ -43,7 +43,7 @@ shinyServer(function(input, output) {
         
         effort <- f / q
         
-        cv <- 0.2
+        cv <- 0.4
         
         for (y in 2:years){
             

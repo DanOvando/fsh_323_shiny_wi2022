@@ -67,7 +67,9 @@ shinyUI(tagList(
   fluidPage(
     # Application title
     titlePanel("Harvest Strategies"),
-    
+    h2("What is this?"),
+    h4("This app simulates fisheries across different harvest strategies"),
+    h4("It follows the general Federal USA practice of defining 'overfished' as B/BMSY < 0.5"),
     # Sidebar with a slider input for number of bins
     sidebarLayout(
       sidebarPanel(
@@ -76,7 +78,8 @@ shinyUI(tagList(
           "Environmental Noise",
           min = 0,
           max = 0.6,
-          value = 0.2
+          value = 0,
+          step = 0.05
         ),
         ########## Java addition ##################
         actionLink(
@@ -113,7 +116,7 @@ shinyUI(tagList(
       # Show a plot of the generated distribution
       mainPanel(tabsetPanel(
         tabPanel("Single Model Run", plotOutput("simplot")),
-        tabPanel("Summary of Many Runs", tableOutput("sumtable"))
+        tabPanel("Summary of Many Runs", tableOutput("sumtable"),hr(), plotOutput("itplot"))
       ))
     )
   )
