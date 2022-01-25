@@ -218,7 +218,7 @@ shinyServer(function(input, output,session) {
       scale_fill_viridis(name = "Year", option = "plasma", direction = -1, guide = guide_colorbar(frame.colour = "black", barwidth = unit (10, "lines"))) 
       
 
-    trajectory_plot / reference_trajectory /  production_plot / kobe_plot
+    production_plot / trajectory_plot / kobe_plot / reference_trajectory
 
   }
   
