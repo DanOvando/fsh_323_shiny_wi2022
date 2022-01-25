@@ -360,7 +360,7 @@ shinyServer(function(input, output,session) {
     output$sumtable <- renderTable({run.many(hr = input$hr, bstart = 1000*input$bstart, catch = input$catch, f = input$f, esc = 100*input$esc, sigma = input$sigma)$sim_table}
     )
     
-    output$itplot <- renderPlot({run.many(hr = input$hr, bstart = 1000*input$bstart, catch = input$catch, f = input$f, esc = 100*input$esc, sigma = input$sigma)$sim_plot}
+    output$itplot <- renderPlot({run.many(hr = input$hr, bstart = 1000*input$bstart, catch = input$catch, f = input$f, esc = 1000*input$esc, sigma = input$sigma)$sim_plot}
     )
                                  
     
