@@ -179,8 +179,8 @@ shinyServer(function(input, output,session) {
     production_plot <- ggplot() + 
       geom_vline(aes(xintercept = 0.25 * K),linetype = 2, color = "tomato") + 
       geom_line(data = eq_results, aes(Biomass, value, color = metric), size = 2) + 
-      geom_path(data = results %>% filter(year %% 5 == 0), aes(Biomass, Production), color = "lightgrey") + 
-      geom_point(data = results %>% filter(year %% 5 == 0), aes(Biomass, Production, fill = year), shape = 21, size = 4) +
+      geom_path(data = results, aes(Biomass, Production), color = "lightgrey") +
+      geom_point(data = results, aes(Biomass, Production, fill = year), shape = 21, size = 4, alpha = 0.9, color = "lightgrey") +
       scale_fill_viridis(name = "Year", option = "plasma", direction = -1, guide = guide_colorbar(frame.colour = "black", barwidth = unit (6, "lines"))) + 
       scale_color_manual(name = '', values = c("tomato", "black"))  +
       scale_x_continuous(name = "Population Biomass", limits = c(0,NA)) + 
@@ -205,13 +205,13 @@ shinyServer(function(input, output,session) {
     ybreaks <- seq(0,4, by = 0.5)
     
     kobe_plot <- results %>% 
-      filter((year %% 5) == 0) %>% 
+      # filter((year %% 5) == 0) %>% 
       ggplot(aes(`B/BMSY`, pmin(4,`F/FMSY`), fill = year)) + 
       geom_vline(aes(xintercept = 0.5),linetype = 2, color = "tomato") + 
       geom_hline(aes(yintercept = 1), linetype = 2) + 
       geom_vline(aes(xintercept = 1), linetype = 2) +
       geom_path() + 
-      geom_point(size = 4, shape = 21) + 
+      geom_point(size = 4, shape = 21, alpha = 0.9, color = "lightgrey") + 
       scale_x_continuous(limits = c(0, 2.25)) + 
       scale_y_continuous(name = "F/FMSY", breaks =  ybreaks, labels = ylabs) +
       coord_cartesian(ylim = c(0, 4)) + 
@@ -337,19 +337,19 @@ shinyServer(function(input, output,session) {
     return(list(sim_table = sim.out,
                 sim_plot = sim_plot))
   }
-  
-  output$simplot <- renderPlot({run.single.pop(hr = input$hr,bstart = 1000*input$bstart, catch = input$catch, f = input$f, esc = 1000*input$esc, sigma = input$sigma)},
+  mult <- 1000
+  output$simplot <- renderPlot({run.single.pop(hr = input$hr,bstart = mult*input$bstart, catch = input$catch, f = input$f, esc = mult*input$esc, sigma = input$sigma)},
                                height = 1500,
                                width = 600)
-  output$sumtable <- renderTable({run.many(hr = input$hr, bstart = 1000*input$bstart, catch = input$catch, f = input$f, esc = 1000*input$esc, sigma = input$sigma)$sim_table}
+  output$sumtable <- renderTable({run.many(hr = input$hr, bstart = mult*input$bstart, catch = input$catch, f = input$f, esc = mult*input$esc, sigma = input$sigma)$sim_table}
   )
   
-  output$itplot <- renderPlot({run.many(hr = input$hr, bstart = 1000*input$bstart, catch = input$catch, f = input$f, esc = 1000*input$esc, sigma = input$sigma)$sim_plot}
+  output$itplot <- renderPlot({run.many(hr = input$hr, bstart = mult*input$bstart, catch = input$catch, f = input$f, esc = mult*input$esc, sigma = input$sigma)$sim_plot}
   )
   
   
   observeEvent(input$do.one, {
-    output$simplot <- renderPlot({run.single.pop(hr = input$hr,bstart = 1000*input$bstart, catch = input$catch, f = input$f, esc = 1000*input$esc, sigma = input$sigma)},
+    output$simplot <- renderPlot({run.single.pop(hr = input$hr,bstart = mult*input$bstart, catch = input$catch, f = input$f, esc = mult*input$esc, sigma = input$sigma)},
                                  height = 1500,
                                  width = 600)
     
@@ -357,10 +357,10 @@ shinyServer(function(input, output,session) {
     })
   observeEvent(input$do, {
 
-    output$sumtable <- renderTable({run.many(hr = input$hr, bstart = 1000*input$bstart, catch = input$catch, f = input$f, esc = 100*input$esc, sigma = input$sigma)$sim_table}
+    output$sumtable <- renderTable({run.many(hr = input$hr, bstart = mult*input$bstart, catch = input$catch, f = input$f, esc = mult*input$esc, sigma = input$sigma)$sim_table}
     )
     
-    output$itplot <- renderPlot({run.many(hr = input$hr, bstart = 1000*input$bstart, catch = input$catch, f = input$f, esc = 1000*input$esc, sigma = input$sigma)$sim_plot}
+    output$itplot <- renderPlot({run.many(hr = input$hr, bstart = mult*input$bstart, catch = input$catch, f = input$f, esc = mult*input$esc, sigma = input$sigma)$sim_plot}
     )
                                  
     
