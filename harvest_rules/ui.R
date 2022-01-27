@@ -25,7 +25,7 @@ parameter_tabs <- tabsetPanel(
       min = 0,
       max = 6000,
       value = 4500,
-      step = 25
+      step = 20
     ),
     actionLink(
       "help2",

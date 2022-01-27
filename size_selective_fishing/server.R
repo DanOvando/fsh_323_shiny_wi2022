@@ -8,7 +8,12 @@
 #
 
 library(shiny)
-
+library(viridis)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(patchwork)
+theme_set(theme_minimal(base_size = 14))
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
    # load functions
@@ -286,9 +291,9 @@ shinyServer(function(input, output) {
   run.eq <- function(u, fishing.method, rec.type) {
     agelist <- seq(0.5, 6, by = 0.1)
     selectivity <- get.select(fishing.method)
-    rzero = 500
-    bha = 957.99
-    bhb = 1.75631
+    rzero  <-  500
+    bha <-  957.99
+    bhb <-  1.75631
     h <- 0.75
     dt <- 0.1
     lh <- get.lh()
@@ -310,7 +315,7 @@ shinyServer(function(input, output) {
     ba <- rinfty * bpr / 1000 * (1 - exp(- (z - g) * dt)) / (z - g)
     ca <- ba * f*selectivity
     c_total <- sum(ca)
-    return(output = list(ba = ba, ca = ca, c_total = c_total, sbpr= sbpr, rinfty = rinfty))
+    return(output = list(ba = ba, ca = ca, c_total = c_total, sbpr= sbpr, rinfty = rinfty, rzero = rzero))
   }
   plot_equil <- function(u, fishing.method, rec.type) {
     agelist <- seq(0.5, 6, by = 0.1)
@@ -321,120 +326,83 @@ shinyServer(function(input, output) {
     ca <- output$ca
     sbpr <- output$sbpr
     rinfty <- output$rinfty
+  
+    results <- tibble(age = agelist, biomass = ba, catch = ca, selectivity = selectivity)
     
-    text.mult <- 1.75
-    library(viridis)
-    cols <- plasma(5)
-    layout(matrix(c(1,2,2,3), nrow = 4, ncol = 1))
-    par(mar = c(4.5,7,1,1), las =1)
-    plot(agelist, 
-         selectivity, 
-         type = "l", 
-         col = cols[1], 
-         lwd = 3,
-         cex.axis = text.mult,
-         cex.lab = text.mult,
-         xlab = "Age",
-         ylab = "",
-         ylim = c(0,1),
-         yaxs = "i",
-         axes = F
-    )
-    box()
-    axis(side =1, at = 1:6, cex.axis = text.mult)
-    axis(side =2, at = c(0, 0.5, 1), cex.axis = text.mult)
-    mtext(side = 2, line = 5, "Selectivity", cex = 1.25, las = 0)
+    sel_plot <- results %>% 
+      ggplot(aes(age, selectivity)) + 
+      geom_hline(aes(yintercept = 0)) +
+      geom_line(size = 2, color = "tomato") + 
+      scale_x_continuous(name = "Age (Years)",breaks = seq(min(agelist), max(agelist), by = 1), labels = seq(min(agelist), max(agelist), by = 1)) + 
+      scale_y_continuous(name = "Gear Selectivity")
     
-    plot(agelist, ba, 
-         type = "h", 
-         lwd = 3,
-         col= cols[3],
-         xlab = "", 
-         ylab = "",
-         ylim = c(0, 0.3),
-         cex.axis = text.mult,
-         cex.lab = text.mult,
-         yaxs = "i",
-         axes = F)
-    box()
-    axis(side =1, at = 1:6, cex.axis =text.mult)
-    axis(side =2, at = c(0, 0.1, 0.2, 0.3), cex.axis = text.mult)
-    mtext(side = 1, line = 3, "Age (yr)", cex = 1.5)
-    mtext(side = 2, line = 5, "Biomass at age (million mt)", las = 0, cex = 1.5)
-    plot(agelist, 
-          ca ,
-         type = "h",
-         xlab = "",
-         ylab = "",
-         col = cols[2], 
-         lwd = 3,
-         ylim = c(0,0.3),
-         cex.axis = text.mult,
-         cex.lab = text.mult,
-         yaxs = "i",
-         axes = F
-    )
-    box()
-    axis(side =1, at = 1:6, cex.axis =text.mult)
-    axis(side =2, at = c(0,  0.1, .2, 0.3), cex.axis = text.mult)
+    bio_plot <- results %>% 
+      ggplot(aes(age, biomass)) + 
+      geom_density(stat = "identity", fill = "steelblue") + 
+      scale_x_continuous(name = "Age (Years)",breaks = seq(min(agelist), max(agelist), by = 1), labels = seq(min(agelist), max(agelist), by = 1)) + 
+      scale_y_continuous(name = "Biomass Alive (million MT)", limits = c(0,0.45))
     
-    mtext(side = 1, line = 3, "Age (yr)", cex = 1.5)
-    mtext(side = 2, line = 5, "Catch at age", las = 0, cex = 1.25)
-    mtext(side = 2, line = 3, "(million mt)", las = 0, cex = 1.25, las = 0)
+    catch_plot <- results %>%
+      ggplot(aes(age, catch)) +
+      geom_density(stat = "identity", fill = "tomato") +
+      scale_x_continuous(
+        name = "Age (Years)",
+        breaks = seq(min(agelist), max(agelist), by = 1),
+        labels = seq(min(agelist), max(agelist), by = 1)
+      ) +
+      scale_y_continuous(name = "Biomass Caught (million MT)", limits = c(0, 0.45))
+    
+    sel_plot / bio_plot / catch_plot
+    
   }
   
   plot_recruit <- function(u, fish.method, rec.type) {
+    unfished <- run.eq(0, fish.method, rec.type)
+    ssb0 <- unfished$sbpr * unfished$rinfty
     output <- run.eq(u, fish.method, rec.type)
     sbpr <- output$sbpr
-    sb.list <- seq(0, 8, length.out = 100)
+    
+    sb.list <- seq(0, ssb0, length.out = 100)
     bha = 957.99
     bhb = 1.75631
-    library(viridis)
     cols <- plasma(5)
     text.mult = 1.25
-    if (rec.type == "const") {
-      plot(sb.list, rep(500, 100),
-           type = "l",
-           col = cols[1],
-           lwd = 3,
-           xlab = "Spawning biomass (million mt)",
-           ylab = "Recruitment (millions)",
-           xlim = c(0, 8),
-           ylim = c(0,525),
-           xaxs = "i",
-           yaxs = "i",
-           cex.axis = text.mult,
-           cex.lab = text.mult
-      )
-      abline(a = 0, b = 1/sbpr,
-             lwd = 3,
-             col = cols[3])
+    if (rec.type == "const"){
+      recs <- 500
+    } else {
+      recs <- sb.list * bha / (1 + bhb * sb.list)
+      
     }
-    if (rec.type == "var") {
-      plot(sb.list, sb.list * bha / (1 + bhb * sb.list),
-           type = "l",
-           col = cols[1],
-           lwd = 3,
-           xlab = "Spawning biomass (million mt)",
-           ylab = "Recruitment (millions)",
-           xlim = c(0, 8),
-           ylim = c(0,525),
-           xaxs = "i",
-           yaxs = "i",
-           cex.axis = text.mult,
-           cex.lab = text.mult
-      )
-      abline(a = 0, b = 1/sbpr,
-             lwd = 3,
-             col = cols[3])
-    }
-    legend("bottomright", 
-           lwd = 2,  
-           col = cols[c(1,3)], 
-           legend = c("Recruitment", "Replacement Line"),
-           cex = text.mult)
+
+    rec_plot <- tibble(sb = sb.list, rec = recs) %>%
+      ggplot() +
+      geom_hline(aes(yintercept = 0)) +
+      geom_line(aes(sb, rec, color = "Spawner-Recruit Curve"), size = 2) +
+      geom_abline(
+        aes(
+          slope = 1 / sbpr,
+          intercept = 0,
+          color = "Replacement Line"
+        ),
+        linetype = 2,
+        size = 1.5
+      ) +
+      scale_x_continuous(name = "Spawning biomass (million mt)",
+                         limits = c(0, ssb0),
+                         expand = expansion(mult = c(0, 0))) +
+      scale_y_continuous(name = "Recruits (millions)", limits = c(0, 525)) +
+      scale_color_manual(values = c("tomato", "aquamarine"), name = '') +
+      theme(legend.position = "top")
+    
+ 
+return(rec_plot)
+   
   }
   make_table <- function(u, fish.method, rec.type) {
+    
+    unfished <- run.eq(0, fish.method, rec.type)
+    
+    rzero <- unfished$rinfty
     m_output <- run.eq(u, fish.method, rec.type)
     dt <- 0.1
     rec <- m_output$rinfty
@@ -442,6 +410,17 @@ shinyServer(function(input, output) {
     ba <- sum(m_output$ba)
     sbpr <- m_output$sbpr* rec
     
+    eq_data <- tibble(Biomass = ba / sum(unfished$ba), `Spawning Biomass` = m_output$sbpr / unfished$sbpr,
+                        `Recruits` = rec /rzero)
+    eq_plot <- eq_data %>% 
+      pivot_longer(everything(), names_to = "metric", values_to = "value") %>% 
+      ggplot() +
+      geom_col(aes(metric,value, fill = value), alpha = 0.75) +
+      geom_col(aes(metric,1), color = 'black', fill = 'transparent') + 
+      scale_fill_gradient2(guide = "none", low = 'red1', mid = 'seashell', high = 'deepskyblue4', midpoint = 0.5, limits = c(0,1)) + 
+      scale_x_discrete(name = "") + 
+      scale_y_continuous(labels = scales::percent, name = "Percent of Unfished Level")
+      
     table_dat <- as.data.frame(matrix(NA, nrow = 4, ncol =2))
     table_dat[,1]<-   c("Recuitment (millions)", "Catch (million mt)", "Total Biomass (million mt)", "Spawning Biomass (million mt)")
     table_dat[,2] <- c(round(rec,0), 
@@ -450,11 +429,8 @@ shinyServer(function(input, output) {
                        round(rec * sbpr/1000,2))
     names(table_dat) <- c("Metric", "Equilibrium Value")
     
-    #table_dat[1,2] <- round(table_dat[1,2],0)
-    #table_dat[2,2] <- round(table_dat[2,2],3)
-    #table_dat[3,2] <- round(table_dat[3,2],3)
-    #table_dat[4,2] <- round(table_dat[4,2],3)
-    return(table_dat)
+  
+    return(list(table_dat = table_dat,eq_plot = eq_plot ))
   }
   catch_vs_f <- function(fishing.method, rec.type) {
     u.list <- seq(0,1, length.out = 50)
@@ -463,7 +439,7 @@ shinyServer(function(input, output) {
     plot(u.list, c.list,
          type = "l",
          lwd = 3,
-         xlab = "Exploitation Rate",
+         xlab = "Fishing Mortality Rate (F)",
          ylab = "Catch (million mt)"
     )
   }
@@ -480,6 +456,8 @@ shinyServer(function(input, output) {
                                 width = 400,
                                 height = 400
   )
-  output$eq_table <- renderTable({make_table(input$u, input$fishing.method, input$rec.type)})
-    
+  output$eq_table <- renderTable({make_table(input$u, input$fishing.method, input$rec.type)$table_dat})
+  
+  output$eq_plot <- renderPlot({make_table(input$u, input$fishing.method, input$rec.type)$eq_plot})
+  
 })

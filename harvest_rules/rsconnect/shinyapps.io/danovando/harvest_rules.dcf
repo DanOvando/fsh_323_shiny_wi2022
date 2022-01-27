@@ -5,9 +5,9 @@ account: danovando
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 5480859
-bundleId: 5508823
+bundleId: 5511610
 url: https://danovando.shinyapps.io/harvest_rules/
-when: 1643175044.65373
-lastSyncTime: 1643175044.65377
+when: 1643225101.96919
+lastSyncTime: 1643225101.9692
 asMultiple: FALSE
 asStatic: FALSE
