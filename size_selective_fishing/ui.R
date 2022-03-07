@@ -26,9 +26,9 @@ shinyUI(fluidPage(
                    step = 0.025),
        radioButtons("fishing.method", "Fishing Method",
                     c(
-                      "Fish Aggregating Device" =  "fad",
                       "School Sets" = "school",
                       "Dolphin Sets" = "dolphin",
+                      "Fish Aggregating Device" =  "fad",
                       "Longline" = "longline")),
        radioButtons("rec.type", "Recruitment",
                     c(
@@ -42,7 +42,8 @@ shinyUI(fluidPage(
                  h2("What do I do?"),
                  p("Adjust the sliders following the instructions in your lab assignment, and examine the results in each tab of the app."),
                  img(src = "900x600-yellowfin-tuna-noaa.jpg")),
-        tabPanel("Catch and Biomass by Age", plotOutput("age_eq_plot")),
+        tabPanel("Life History", plotOutput("lh")),
+        tabPanel("Selectivity, Biomass, and Catch by Age", plotOutput("age_eq_plot")),
         tabPanel("Population and Catch Summary", tableOutput("eq_table"), plotOutput("eq_plot")),
         tabPanel("Recruitment", plotOutput("rec_plot"),helpText('The replacement line shows the number of recruits needed to "replace" the amount of spawning biomass (x axis) in the next generation.  Whenever recruitment is greater than the "replacement line", more recruits are produced than needed to replace the current generation of spawners so the population will grow.  When recruitment is less than the replacement line, too few recruits are produced to replace the current generation of spawners, so the population will decline'))
     ))

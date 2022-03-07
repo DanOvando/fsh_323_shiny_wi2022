@@ -5,9 +5,9 @@ account: danovando
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 5528338
-bundleId: 5516012
+bundleId: 5528101
 url: https://danovando.shinyapps.io/size_selective_fishing/
-when: 1643317819.84138
-lastSyncTime: 1643317819.84139
+when: 1643663563.50418
+lastSyncTime: 1643663563.50418
 asMultiple: FALSE
 asStatic: FALSE

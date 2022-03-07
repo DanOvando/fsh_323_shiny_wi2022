@@ -304,7 +304,9 @@ shinyServer(function(input, output) {
     la <- length(agelist)
     for (i in 2:la)
       na[i] <- na[i - 1] * exp(-z[i - 1] * dt)
+    
     bpr <- na * lh$W
+    
     sbpr <- sum(bpr * lh$pMat) * dt / 1000
     
     
@@ -315,17 +317,31 @@ shinyServer(function(input, output) {
     ba <- rinfty * bpr / 1000 * (1 - exp(- (z - g) * dt)) / (z - g)
     ca <- ba * f*selectivity
     c_total <- sum(ca)
-    return(output = list(ba = ba, ca = ca, c_total = c_total, sbpr= sbpr, rinfty = rinfty, rzero = rzero))
+    return(output = list(ba = ba, ca = ca, c_total = c_total, sbpr= sbpr, rinfty = rinfty, rzero = rzero,n_at_a = na, w_at_a = lh$W))
   }
   plot_equil <- function(u, fishing.method, rec.type) {
     agelist <- seq(0.5, 6, by = 0.1)
     dt <- 0.1
     selectivity <- get.select(fishing.method)
     output <- run.eq(u, fishing.method, rec.type)
+    unfished_output <- run.eq(0, fishing.method, rec.type)
+    
     ba <- output$ba
     ca <- output$ca
     sbpr <- output$sbpr
     rinfty <- output$rinfty
+    
+    lh <- tibble(age = agelist, `Number of Tuna` = unfished_output$n_at_a, `Weight per Tuna` = unfished_output$w_at_a) %>% 
+      mutate(`Total Biomass` = `Number of Tuna` *  `Weight per Tuna`) %>% 
+      pivot_longer(-age)
+    
+    lh_plot <- lh %>% 
+      ggplot(aes(age, value, fill = name)) + 
+      geom_density(stat = "identity", show.legend = FALSE) + 
+      facet_wrap(~name,scales = "free_y") + 
+      scale_x_continuous(name = "Age (Years)", breaks = seq(min(agelist), max(agelist), by = 1), guide = guide_axis(n.dodge = 2)) + 
+      scale_y_continuous(name = "Value") +
+      theme(axis.text.x = element_text(size = 12))
   
     results <- tibble(age = agelist, biomass = ba, catch = ca, selectivity = selectivity)
     
@@ -352,8 +368,10 @@ shinyServer(function(input, output) {
       ) +
       scale_y_continuous(name = "Biomass Caught (million MT)", limits = c(0, 0.45))
     
-    sel_plot / bio_plot / catch_plot
+    things <- sel_plot  /  bio_plot / catch_plot 
     
+    out <- list(lh = lh_plot, things = things)
+    return(out)
   }
   
   plot_recruit <- function(u, fish.method, rec.type) {
@@ -394,7 +412,7 @@ shinyServer(function(input, output) {
       scale_color_manual(values = c("tomato", "aquamarine"), name = '') +
       theme(legend.position = "top")
     
- 
+
 return(rec_plot)
    
   }
@@ -444,16 +462,22 @@ return(rec_plot)
     )
   }
     
-  output$age_eq_plot <- renderPlot({plot_equil(input$u, input$fishing.method, input$rec.type)},
-                                   width = 400,
+  output$age_eq_plot <- renderPlot({plot_equil(input$u, input$fishing.method, input$rec.type)$things},
+                                   width = 500,
                                    height = 600
                                   )
+  
+  output$lh <- renderPlot({plot_equil(input$u, input$fishing.method, input$rec.type)$lh},
+                                   width = 600,
+                                   height = 600
+  )
+  
   output$rec_plot <- renderPlot({plot_recruit(input$u, input$fishing.method, input$rec.type)},
-                                width = 400,
+                                width = 500,
                                 height = 400
   )
   output$catch_plot <- renderPlot({catch_vs_f(input$fishing.method, input$rec.type)},
-                                width = 400,
+                                width = 500,
                                 height = 400
   )
   output$eq_table <- renderTable({make_table(input$u, input$fishing.method, input$rec.type)$table_dat})

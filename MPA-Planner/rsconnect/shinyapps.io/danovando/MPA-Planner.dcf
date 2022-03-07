@@ -1,0 +1,13 @@
+name: MPA-Planner
+title: MPA-Planner
+username:
+account: danovando
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5793010
+bundleId: 5653170
+url: https://danovando.shinyapps.io/MPA-Planner/
+when: 1646678464.56078
+lastSyncTime: 1646678464.5608
+asMultiple: FALSE
+asStatic: FALSE
