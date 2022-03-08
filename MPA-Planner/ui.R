@@ -11,7 +11,8 @@ shinyUI(fluidPage(
             helpText("You can save MPA configurations generated on the input graph and upload them here"),
             fileInput("upload", "Upload MPA Design"),
             helpText("Once you have an MPA design you are happy with, click the button below to run simulations."),
-            actionButton("simulate", "Simulate MPAs")
+            actionButton("simulate", "Simulate MPAs"),
+            sliderInput("cons_weight","Manager Conservation Weighting", min = 0, max = 1, value = 0.33, step = 0.01)
         ),
 
         # Show a plot of the generated distribution
@@ -32,7 +33,7 @@ shinyUI(fluidPage(
                          br(),
                          textOutput("progress"),
                          helpText("Click the download button to save your MPA network for future use"),
-                         downloadButton("download", label = "Download MPA"),
+                         downloadButton("download_mpa", label = "Download MPA"),
                          h1("Unfished Adult Distribution"),
                          plotOutput("habitat"),
                          br(),
@@ -46,6 +47,8 @@ shinyUI(fluidPage(
                 tabPanel("Fishery Results",
                          plotOutput("fish_results")),
                 tabPanel("Results Summary", 
+                         helpText("Click the download button to save the results of your MPA network for future use"),
+                         downloadButton("download_obj", label = "Download Results"),
                          tableOutput("objectives"))
             ) # close tabset panel
     ) # close mainpanel

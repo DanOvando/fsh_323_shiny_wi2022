@@ -28,7 +28,7 @@ shinyServer(function(input, output, session) {
     # see https://mastering-shiny.org/action-graphics.html for reactivity with clicking
     res <- resolution <- 20
     
-    grid <- expand.grid(x = 1:res, y = 1:res)
+    grid <- tidyr::expand_grid(x = 1:res, y = 1:res)
     
     grid$patch <- 1:nrow(grid)
     
@@ -54,7 +54,7 @@ shinyServer(function(input, output, session) {
         mutate(critter = "Yellowfin")
     
     mako_habitat <- expand_grid(x = 1:resolution, y = 1:resolution) %>%
-        mutate(habitat =  dnorm(x + rnorm(nrow(.)),12,8)) %>% 
+        mutate(habitat =  dnorm(x + rnorm(nrow(.)),10,8)) %>% 
         mutate(critter = "Mako Shark")
     
     
@@ -147,7 +147,7 @@ shinyServer(function(input, output, session) {
                 init_explt = 0.5, 
                 explt_type = "f",
                 steepness = 0.8,
-                r0 = 200000
+                r0 = 500000
             ),
             "Snapper" = create_critter(
                 scientific_name = "Lutjanus griseus",
@@ -180,7 +180,7 @@ shinyServer(function(input, output, session) {
                 # price per unit weight
                 sel_form = "logistic",
                 # selectivity form, one of logistic or dome
-                sel_start = .3,
+                sel_start = .5,
                 # percentage of length at maturity that selectivity starts
                 sel_delta = .1,
                 # additional percentage of sel_start where selectivity asymptotes
@@ -190,7 +190,7 @@ shinyServer(function(input, output, session) {
             ),
             `Mako Shark` = Metier$new(
                 critter = fauna$`Mako Shark`,
-                price = -1,
+                price = 0,
                 sel_form = "logistic",
                 sel_start = .25,
                 sel_delta = .01,
@@ -199,7 +199,7 @@ shinyServer(function(input, output, session) {
             ),
             `Skipjack` = Metier$new(
                 critter = fauna$Skipjack,
-                price = 0,
+                price = 1,
                 sel_form = "logistic",
                 sel_start = 1,
                 sel_delta = .01,
@@ -223,7 +223,7 @@ shinyServer(function(input, output, session) {
         list(
             `Yellowfin` = Metier$new(
                 critter = fauna$`Yellowfin`,
-                price = 20,
+                price = 10,
                 # price per unit weight
                 sel_form = "logistic",
                 # selectivity form, one of logistic or dome
@@ -246,7 +246,7 @@ shinyServer(function(input, output, session) {
             ),
             `Skipjack` = Metier$new(
                 critter = fauna$Skipjack,
-                price = 10,
+                price = 20,
                 sel_form = "logistic",
                 sel_start = .75,
                 sel_delta = .01,
@@ -293,7 +293,7 @@ shinyServer(function(input, output, session) {
             ),
             `Skipjack` = Metier$new(
                 critter = fauna$Skipjack,
-                price = 0,
+                price = 1,
                 sel_form = "logistic",
                 sel_start = .1,
                 sel_delta = .01,
@@ -433,7 +433,7 @@ shinyServer(function(input, output, session) {
         mpa_area
     }, height = 500, width = 500)
     
-    output$download <- downloadHandler(
+    output$download_mpa <- downloadHandler(
         filename = function() {
             paste0(scales::percent(mean(selected())),"_mpa.csv")
         },
@@ -441,6 +441,8 @@ shinyServer(function(input, output, session) {
             vroom::vroom_write(grid %>% mutate(mpa = selected()), file, delim = ",")
         }
     )
+    
+
     
     output$progress <- renderText({
         mpa_sim()
@@ -458,7 +460,6 @@ shinyServer(function(input, output, session) {
         
         grid$mpa <- selected()
  
-        
         mpa_sim <- simmar(fauna = fauna,
                       fleets = fleets,
                       years = mpa_years,
@@ -546,9 +547,10 @@ shinyServer(function(input, output, session) {
        #     facet_grid(name~fleet) + 
        #     scale_y_continuous(labels = scales::label_percent(accuracy = .2), name = "Change Caused by MPA") + 
        #     scale_x_continuous(name = "Year")
-       #     
+       
        fleet_dist_plot <- fsh_results$fleets %>% 
-         filter(year == max(year)) %>% 
+         filter(year == max(year), 
+                fleet == "longline") %>% 
          select(x,y,patch,contains("effort")) %>% 
          pivot_longer(contains("_effort"), names_to = "fleet") %>% 
          mutate(fleet = str_remove_all(fleet, "_effort")) %>% 
@@ -612,8 +614,7 @@ shinyServer(function(input, output, session) {
             filter(critter %in% c("Snapper", "Mako Shark")) %>% 
             summarise(bio = sum(percent_change))
         
-        artis_obj <- 0.75 * artis_econ_obj$econ + 0.25 * artis_bio_obj$bio
-    
+   
         
    # conservation 
    
@@ -645,20 +646,80 @@ shinyServer(function(input, output, session) {
         # max possible cons ~ 1.99
         # min possible econ ~ - 1
         # # fishery shutdown would mean conservation is about 2, all fishery is about -3
-      
+  
+  cons_slope <- 1 / 1
+  
+  cons_intercept <-  -cons_slope * 0.1
+        
+  rescale_cons <- cons_slope * cons_obj$bio + cons_intercept
 
-    alpha <-  (0 - (-3)) / (1.97 - (-3))
+  longline_slope <- 1 / (.1 -  -.5)
+  
+  longline_intercept <-  -longline_slope * -.5
+  
+  rescale_longline <- longline_slope * longline_obj + longline_intercept
+  
+  
+  ps_slope <- 1 / (.1 -  -.5)
+  
+  ps_intercept <-  -ps_slope * -.5
+  
+  rescale_ps <- ps_slope * ps_obj + ps_intercept
+  
+  artis_econ_obj <-  artis_econ_obj$econ
+  
+  artis_econ_slope <- 1 / (.1 - -.5)
+  
+  artis_econ_intercept <- -artis_econ_slope * -.5
+  
+  artis_econ_rescale <- artis_econ_slope * artis_econ_obj + artis_econ_intercept
+  
+  artis_bio_slope <- 1 / (1)
+  
+  artis_bio_intercept <- -artis_bio_slope * -.25
+  
+  artis_bio_rescale <- artis_bio_slope * artis_bio_obj$bio + artis_bio_intercept
+  
+  artis_alpha <- 0.3
+  
+  artis_obj <- artis_alpha * artis_bio_rescale + (1 - artis_alpha) * artis_econ_rescale
+  
+  artis_slope <- 1 / (2)
+  
+  artis_intercept <-  -artis_slope * 0
+  
+  rescale_artis <- artis_slope * artis_obj + artis_intercept
+  
+  econ_slope <- 1 / (3)
+  
+  econ_intercept <-  -econ_slope * 0
+  
+  econ <-  (rescale_longline +  rescale_ps + rescale_artis)
+  
+  rescale_econ <- econ_slope * econ + econ_intercept
+  
+  
+  alpha <- input$cons_weight
+  
+  manager_obj <- alpha * rescale_cons + (1 - alpha) * rescale_econ
+      
+      
+    objectives <- tibble("Managers" = round(manager_obj,2),
+                         "Conservationists" = round(rescale_cons,2),
+                         "Longline Fleet" = round(rescale_longline,2),
+                         "Purse-seine Fleet" = round(rescale_ps,2), 
+                         "Artisanal Fleet" = round(rescale_artis,2))
     
-    # x * 2 + (1 - x) * -3
+    output$download_obj <- downloadHandler(
+      filename = function() {
+        paste0(scales::percent(mean(selected())),"_mpa_results.csv")
+      },
+      content = function(file) {
+        vroom::vroom_write(objectives, file, delim = ",")
+      }
+    )
     
-    manager_obj <-  alpha * cons_obj$bio +  (1 - alpha) * (longline_obj +  ps_obj + artis_obj) # weight total fishing interests and conservation interests equally 
-    
-    objectives <- tibble("Managers" = manager_obj,
-                         "Conservationists" = cons_obj,
-                         "Longline Fleet" = longline_obj,
-                         "Purse-seine Fleet" = ps_obj, 
-                         "Artisanal Fleet" = artis_obj)
-    
+
     objectives
                   
     })
