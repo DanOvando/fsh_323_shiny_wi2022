@@ -3,6 +3,8 @@
 
 # Shiny applications for FISH 323 Winter 2022
 
+## Setup
+
 <!-- badges: start -->
 <!-- badges: end -->
 
@@ -23,3 +25,22 @@ To run locally
     results. Packages are installed in a stand-alone project library for
     this paper, and will not affect your installed R packages anywhere
     else.
+
+# Selected Shiny Apps
+
+In no particular order…
+
+[Planning MPAs](https://danovando.shinyapps.io/MPA-Planner/)
+
+[Size selective
+fisheries](https://danovando.shinyapps.io/size_selective_fishing/)
+
+[Natural resource
+economics](https://danovando.shinyapps.io/bioeconomics/)
+
+[Harvest rules](https://danovando.shinyapps.io/harvest_rules/)
+
+[Stock status](https://danovando.shinyapps.io/sim_stock_status/)
+
+[stock
+assessment](https://danovando.shinyapps.io/sim_simple_assessment/)

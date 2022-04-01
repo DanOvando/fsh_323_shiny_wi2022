@@ -237,7 +237,7 @@ shinyServer(function(input, output, session) {
             ),
             `Mako Shark` = Metier$new(
                 critter = fauna$`Mako Shark`,
-                price = 0,
+                price = -1,
                 sel_form = "logistic",
                 sel_start = 999,
                 sel_delta = .01,
